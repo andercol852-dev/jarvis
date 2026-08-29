@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS - Control de Robot Autónomo</title>
+    <title>JARVIS - Micrófono Infinito</title>
     
     <style>
-        /* --- ESTILOS GENERALES Y TEMA FUTURISTA --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: #050811;
             color: #00ffcc;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,60 +21,40 @@
             overflow: hidden;
         }
 
-        header {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            letter-spacing: 4px;
-            text-shadow: 0 0 12px #00ffcc;
-            color: #ffffff;
-        }
-
+        header { text-align: center; margin-top: 10px; }
+        h1 { font-size: 2rem; letter-spacing: 4px; text-shadow: 0 0 12px #00ffcc; color: #ffffff; }
+        
         #status {
             font-size: 0.9rem;
-            color: #88aaff;
+            color: #00ffcc;
             margin-top: 5px;
-            letter-spacing: 1px;
+            font-weight: bold;
+            background: rgba(0, 255, 204, 0.1);
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 1px solid #00ffcc;
         }
 
-        /* --- CONTENEDOR DE LA ANIMACIÓN DE JARVIS --- */
+        /* ANIMACIÓN DEL NÚCLEO */
         .jarvis-viewport {
             position: relative;
-            width: 240px;
-            height: 240px;
+            width: 220px;
+            height: 220px;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 20px 0;
         }
 
-        /* Anillo giratorio exterior */
         .outer-ring {
             position: absolute;
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             border: 2px dashed #00aaff;
             border-radius: 50%;
-            animation: girarAnillo 12s linear infinite;
-            box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+            animation: girar 10s linear infinite;
         }
 
-        /* Anillo intermedio */
-        .middle-ring {
-            position: absolute;
-            width: 170px;
-            height: 170px;
-            border: 2px solid rgba(0, 255, 204, 0.4);
-            border-top: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-            border-radius: 50%;
-            animation: girarAnilloInverso 6s linear infinite;
-        }
-
-        /* Núcleo central de Jarvis */
         .jarvis-core {
             width: 100px;
             height: 100px;
@@ -87,84 +62,42 @@
             background: radial-gradient(circle, rgba(0,255,204,1) 0%, rgba(0,100,200,0.6) 60%, transparent 100%);
             box-shadow: 0 0 30px #00ffcc, inset 0 0 20px #00ffcc;
             border: 2px solid #ffffff;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.2s ease-in-out;
         }
 
-        /* --- CLASE ACTIVA DE ANIMACIÓN CUANDO HABLA --- */
         .jarvis-core.speaking {
             animation: pulsoVoz 0.35s infinite alternate ease-in-out;
             box-shadow: 0 0 70px #00ffcc, 0 0 110px #00aaff, inset 0 0 40px #ffffff;
-            border-color: #00ffcc;
         }
 
-        /* KEYFRAMES DE ANIMACIONES */
-        @keyframes girarAnillo {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes girarAnilloInverso {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(-360deg); }
-        }
-
+        @keyframes girar { 100% { transform: rotate(360deg); } }
         @keyframes pulsoVoz {
-            0% {
-                transform: scale(1);
-                filter: brightness(1);
-            }
-            100% {
-                transform: scale(1.4);
-                filter: brightness(2);
-            }
+            0% { transform: scale(1); filter: brightness(1); }
+            100% { transform: scale(1.4); filter: brightness(2); }
         }
 
-        /* --- BOTONES DE CONTROL --- */
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            width: 100%;
-            max-width: 400px;
-        }
+        .controls { display: flex; gap: 10px; width: 100%; max-width: 400px; }
 
         button {
             flex: 1;
-            background: rgba(0, 255, 204, 0.08);
+            background: rgba(0, 255, 204, 0.1);
             color: #00ffcc;
             border: 1px solid #00ffcc;
-            padding: 14px 10px;
+            padding: 15px 10px;
             font-size: 0.85rem;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.15);
-            transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        button:active {
-            background: #00ffcc;
-            color: #050811;
-            box-shadow: 0 0 20px #00ffcc;
-        }
+        button:active { background: #00ffcc; color: #050811; }
 
-        /* --- CONSOLA DE LOGS EN PANTALLA --- */
         #console-log {
-            width: 100%;
-            max-width: 400px;
-            height: 130px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #004455;
-            border-radius: 6px;
-            padding: 10px;
-            overflow-y: auto;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.75rem;
-            color: #00ffcc;
-            text-align: left;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            width: 100%; max-width: 400px; height: 120px;
+            background: rgba(0, 0, 0, 0.8); border: 1px solid #004455;
+            border-radius: 6px; padding: 10px; overflow-y: auto;
+            font-family: monospace; font-size: 0.75rem; color: #00ffcc;
         }
     </style>
 </head>
@@ -172,140 +105,159 @@
 
     <header>
         <h1>J.A.R.V.I.S</h1>
-        <div id="status">SISTEMA OFF - CONECTE BLUETOOTH</div>
+        <div id="status">MICRÓFONO: APAGADO</div>
     </header>
 
-    <!-- ÁREA VISUAL CON ANIMACIÓN CIBERNÉTICA -->
     <div class="jarvis-viewport">
         <div class="outer-ring"></div>
-        <div class="middle-ring"></div>
         <div id="jarvisCore" class="jarvis-core"></div>
     </div>
 
-    <!-- PANEL DE BOTONES -->
     <div class="controls">
         <button onclick="conectarBluetooth()">1. Conectar BT</button>
-        <button onclick="iniciarReconocimientoVoz()">2. Iniciar Voz</button>
+        <button onclick="activarMicrofonoInfinito()">2. ENCENDER MICRÓFONO 24/7</button>
     </div>
 
-    <!-- TERMINAL DE CONSOLA DE EVENTOS -->
-    <div id="console-log">--- SISTEMA LISTO ---<br></div>
+    <div id="console-log">--- TOCA "ENCENDER MICRÓFONO" PARA INICIAR ---<br></div>
 
     <script>
-        // VARIABLES Y ELEMENTOS DEL DOM
-        let bluetoothCharacteristic = null;
+        let rec;
+        let microfonoForzado = false;
+        let jarvisHablando = false;
         const coreElement = document.getElementById("jarvisCore");
+        const statusElement = document.getElementById("status");
 
-        // DICCIONARIO BASE DE DATOS LOCAL DE JARVIS (PREGUNTAS Y ACCIONES)
         const MEMORIA_JARVIS = {
-            "quien eres": { resp: "Soy Jarvis, tu asistente robótico autónomo.", cmd: null },
-            "donde estas": { resp: "Me encuentro montado en el chasis del robot.", cmd: null },
+            "hola": { resp: "Hola, estoy listo para recibir tus órdenes.", cmd: null },
+            "como estas": { resp: "Todos mis sistemas están al cien por ciento.", cmd: null },
+            "buenos dias": { resp: "Buenos días. Esperando instrucciones.", cmd: null },
+            "quien eres": { resp: "Soy Jarvis, tu asistente autónomo.", cmd: null },
             "avanza": { resp: "Avanzando motores.", cmd: "F" },
-            "detente": { resp: "Deteniendo motores de inmediato.", cmd: "S" },
+            "detente": { resp: "Deteniendo motores inmediatamente.", cmd: "S" },
             "para": { resp: "Deteniendo robot.", cmd: "S" },
-            "ve al punto uno": { resp: "Iniciando rutina de navegación al punto uno.", cmd: "1" },
-            "regresa a casa": { resp: "Calculando retorno. Regresando a la base inicial.", cmd: "H" },
+            "ve al punto uno": { resp: "Iniciando ruta al punto uno.", cmd: "1" },
+            "regresa a casa": { resp: "Regresando a la base inicial.", cmd: "H" },
             "vuelve a casa": { resp: "Iniciando retorno a casa.", cmd: "H" }
         };
 
-        // FUNCIÓN PARA REGISTRAR MENSAJES EN PANTALLA
         function log(texto) {
             const consoleDiv = document.getElementById("console-log");
             consoleDiv.innerHTML += "> " + texto + "<br>";
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
-        // FUNCIÓN DE HABLA QUE DISPARA LA ANIMACIÓN
         function hablar(texto) {
-            log("Jarvis dice: '" + texto + "'");
-            
+            log("Jarvis: " + texto);
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'es-ES';
-            utterance.rate = 1.0;
 
-            // EVENTO: Al empezar el audio -> Enciende la animación visual
             utterance.onstart = () => {
+                jarvisHablando = true;
                 coreElement.classList.add("speaking");
             };
 
-            // EVENTO: Al terminar el audio -> Apaga la animación
             utterance.onend = () => {
                 coreElement.classList.remove("speaking");
+                jarvisHablando = false;
+                // Al terminar de hablar, fuerza el reinicio instantáneo del micrófono
+                forzarEncendidoMicrofono();
             };
 
             window.speechSynthesis.speak(utterance);
         }
 
-        // CONEXIÓN POR WEB BLUETOOTH API
-        async function conectarBluetooth() {
+        // BUCLE DE FUERZA BRUTA PARA EL MICRÓFONO
+        function forzarEncendidoMicrofono() {
+            if (!microfonoForzado || jarvisHablando) return;
             try {
-                log("Buscando módulos Bluetooth cercanos...");
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb'] // UUID Serial estándar HC-05/Makeblock
-                });
-
-                log("Conectando a GATT Server...");
-                const server = await device.gatt.connect();
-                document.getElementById("status").innerText = "CONECTADO A: " + device.name.toUpperCase();
-                log("¡Conexión establecida con " + device.name + "!");
-                hablar("Conexión establecida exitosamente.");
-            } catch (error) {
-                log("Error al conectar Bluetooth: " + error);
+                rec.start();
+            } catch (e) {
+                // Si ya está encendido, ignora el error y continúa
             }
         }
 
-        // ENVÍO DE CARACTER DE CONTROL AL ROBOT
-        function enviarComandoRobot(letraComando) {
-            if (!letraComando) return;
-            log("ENVIADO A ROBOT: [" + letraComando + "]");
-            // Si la característica Bluetooth está instanciada se transmite aquí
-        }
-
-        // MOTOR DE RECONOCIMIENTO DE VOZ LOCAL
-        function iniciarReconocimientoVoz() {
+        function activarMicrofonoInfinito() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("Navegador no compatible. Abre este sitio en Google Chrome en Android.");
+                alert("Navegador no compatible. Usa Google Chrome en Android.");
                 return;
             }
 
-            const rec = new SpeechRecognition();
+            rec = new SpeechRecognition();
             rec.lang = 'es-ES';
             rec.continuous = true;
             rec.interimResults = false;
 
+            microfonoForzado = true;
+
             rec.onstart = () => {
-                log("Micrófono activo. Di 'Jarvis'...");
-                hablar("Micrófono activado, te escucho.");
+                statusElement.innerText = "MICRÓFONO: SIEMPRE ACTIVO 🔴";
+                statusElement.style.color = "#00ffcc";
+            };
+
+            // SI ANDROID LO APAGA, LO REENCENDEMOS DE INMEDIATO (0 MILISEGUNDOS)
+            rec.onend = () => {
+                if (microfonoForzado && !jarvisHablando) {
+                    forzarEncendidoMicrofono();
+                }
+            };
+
+            rec.onerror = (e) => {
+                if (microfonoForzado && !jarvisHablando) {
+                    setTimeout(forzarEncendidoMicrofono, 100);
+                }
             };
 
             rec.onresult = (event) => {
                 const fraseEscuchada = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-                log("Oído: " + fraseEscuchada);
+                log("Escuchado: " + fraseEscuchada);
 
-                // Comprobación del Keyword / Palabra clave "Jarvis"
                 if (fraseEscuchada.includes("jarvis")) {
                     let ordenLimpia = fraseEscuchada.replace("oye jarvis", "").replace("jarvis", "").trim();
-                    let comandoEncontrado = false;
+                    let encontrado = false;
 
                     for (let clave in MEMORIA_JARVIS) {
                         if (ordenLimpia.includes(clave)) {
                             hablar(MEMORIA_JARVIS[clave].resp);
                             enviarComandoRobot(MEMORIA_JARVIS[clave].cmd);
-                            comandoEncontrado = true;
+                            encontrado = true;
                             break;
                         }
                     }
 
-                    if (!comandoEncontrado) {
-                        hablar("No tengo esa pregunta o instrucción guardada en mi código.");
+                    if (!encontrado) {
+                        hablar("No tengo esa pregunta o instrucción guardada.");
                     }
                 }
             };
 
-            rec.onerror = (e) => log("Error de voz: " + e.error);
-            rec.start();
+            forzarEncendidoMicrofono();
+            
+            // RELOJ GUARDIÁN: Revisa cada 1 segundo que el micrófono no se haya dormido
+            setInterval(() => {
+                if (microfonoForzado && !jarvisHablando) {
+                    forzarEncendidoMicrofono();
+                }
+            }, 1000);
+        }
+
+        async function conectarBluetooth() {
+            try {
+                log("Buscando Bluetooth...");
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['00001101-0000-1000-8000-00805f9b34fb']
+                });
+                await device.gatt.connect();
+                log("Conectado a " + device.name);
+                hablar("Bluetooth conectado.");
+            } catch (error) {
+                log("Error BT: " + error);
+            }
+        }
+
+        function enviarComandoRobot(cmd) {
+            if (cmd) log("ENVIADO A ROBOT: [" + cmd + "]");
         }
     </script>
 </body>
