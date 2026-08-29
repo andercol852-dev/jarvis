@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS - Micrófono Infinito</title>
+    <title>J.A.R.V.I.S - Sistema de Control por Voz</title>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,16 +26,17 @@
         
         #status {
             font-size: 0.9rem;
-            color: #00ffcc;
+            color: #ff3366;
             margin-top: 5px;
             font-weight: bold;
-            background: rgba(0, 255, 204, 0.1);
+            background: rgba(255, 51, 102, 0.1);
             padding: 5px 15px;
             border-radius: 15px;
-            border: 1px solid #00ffcc;
+            border: 1px solid #ff3366;
+            transition: all 0.3s ease;
         }
 
-        /* ANIMACIÓN DEL NÚCLEO */
+        /* ANIMACIÓN DEL NÚCLEO JARVIS */
         .jarvis-viewport {
             position: relative;
             width: 220px;
@@ -94,8 +95,8 @@
         button:active { background: #00ffcc; color: #050811; }
 
         #console-log {
-            width: 100%; max-width: 400px; height: 120px;
-            background: rgba(0, 0, 0, 0.8); border: 1px solid #004455;
+            width: 100%; max-width: 400px; height: 130px;
+            background: rgba(0, 0, 0, 0.85); border: 1px solid #004455;
             border-radius: 6px; padding: 10px; overflow-y: auto;
             font-family: monospace; font-size: 0.75rem; color: #00ffcc;
         }
@@ -118,7 +119,8 @@
         <button onclick="activarMicrofonoInfinito()">2. ENCENDER MICRÓFONO 24/7</button>
     </div>
 
-    <div id="console-log">--- TOCA "ENCENDER MICRÓFONO" PARA INICIAR ---<br></div>
+    <br>
+    <div id="console-log">--- TOCA "ENCENDER MICRÓFONO 24/7" PARA INICIAR ---<br></div>
 
     <script>
         let rec;
@@ -127,16 +129,21 @@
         const coreElement = document.getElementById("jarvisCore");
         const statusElement = document.getElementById("status");
 
+        // DICCIONARIO DE CONVERSACIÓN Y COMANDOS DEL ROBOT
         const MEMORIA_JARVIS = {
             "hola": { resp: "Hola, estoy listo para recibir tus órdenes.", cmd: null },
-            "como estas": { resp: "Todos mis sistemas están al cien por ciento.", cmd: null },
-            "buenos dias": { resp: "Buenos días. Esperando instrucciones.", cmd: null },
-            "quien eres": { resp: "Soy Jarvis, tu asistente autónomo.", cmd: null },
+            "como estas": { resp: "Todos mis sistemas están funcionando al cien por ciento.", cmd: null },
+            "que tal": { resp: "Todo en orden por aquí, esperando instrucciones.", cmd: null },
+            "buenos dias": { resp: "Buenos días. Esperando instrucciones de navegación.", cmd: null },
+            "buenas noches": { resp: "Buenas noches. Sistemas listos.", cmd: null },
+            "quien eres": { resp: "Soy Jarvis, tu asistente robótico autónomo.", cmd: null },
+            "quien sos": { resp: "Soy Jarvis, tu asistente robótico autónomo.", cmd: null },
+            "donde estas": { resp: "Me encuentro montado en el chasis del robot.", cmd: null },
             "avanza": { resp: "Avanzando motores.", cmd: "F" },
             "detente": { resp: "Deteniendo motores inmediatamente.", cmd: "S" },
             "para": { resp: "Deteniendo robot.", cmd: "S" },
-            "ve al punto uno": { resp: "Iniciando ruta al punto uno.", cmd: "1" },
-            "regresa a casa": { resp: "Regresando a la base inicial.", cmd: "H" },
+            "ve al punto uno": { resp: "Iniciando rutina de navegación al punto uno.", cmd: "1" },
+            "regresa a casa": { resp: "Calculando retorno. Regresando a la base inicial.", cmd: "H" },
             "vuelve a casa": { resp: "Iniciando retorno a casa.", cmd: "H" }
         };
 
@@ -146,40 +153,43 @@
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
+        // SÍNTESIS DE VOZ CONTROLADA
         function hablar(texto) {
-            log("Jarvis: " + texto);
+            log("Jarvis: '" + texto + "'");
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'es-ES';
+            utterance.rate = 1.0;
 
             utterance.onstart = () => {
                 jarvisHablando = true;
-                coreElement.classList.add("speaking");
+                if (coreElement) coreElement.classList.add("speaking");
             };
 
             utterance.onend = () => {
-                coreElement.classList.remove("speaking");
+                if (coreElement) coreElement.classList.remove("speaking");
                 jarvisHablando = false;
-                // Al terminar de hablar, fuerza el reinicio instantáneo del micrófono
+                // Reenviar la escucha inmediatamente tras hablar
                 forzarEncendidoMicrofono();
             };
 
             window.speechSynthesis.speak(utterance);
         }
 
-        // BUCLE DE FUERZA BRUTA PARA EL MICRÓFONO
+        // FUNCIÓN QUE OBLIGA AL MICRÓFONO A MANTENERSE ENCEDIDO
         function forzarEncendidoMicrofono() {
             if (!microfonoForzado || jarvisHablando) return;
             try {
                 rec.start();
             } catch (e) {
-                // Si ya está encendido, ignora el error y continúa
+                // Si ya estaba activo, la excepción se ignora silenciosamente
             }
         }
 
+        // INICIALIZACIÓN DEL MICRÓFONO PERMANENTE
         function activarMicrofonoInfinito() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("Navegador no compatible. Usa Google Chrome en Android.");
+                alert("Navegador no compatible. Abre este sitio en Google Chrome en Android.");
                 return;
             }
 
@@ -191,11 +201,15 @@
             microfonoForzado = true;
 
             rec.onstart = () => {
-                statusElement.innerText = "MICRÓFONO: SIEMPRE ACTIVO 🔴";
-                statusElement.style.color = "#00ffcc";
+                if (statusElement) {
+                    statusElement.innerText = "MICRÓFONO: SIEMPRE ACTIVO 🔴";
+                    statusElement.style.color = "#00ffcc";
+                    statusElement.style.borderColor = "#00ffcc";
+                    statusElement.style.background = "rgba(0, 255, 204, 0.1)";
+                }
             };
 
-            // SI ANDROID LO APAGA, LO REENCENDEMOS DE INMEDIATO (0 MILISEGUNDOS)
+            // RECONEXIÓN AUTOMÁTICA SI ANDROID CIERRA LA ESCUCHA
             rec.onend = () => {
                 if (microfonoForzado && !jarvisHablando) {
                     forzarEncendidoMicrofono();
@@ -208,32 +222,40 @@
                 }
             };
 
+            // EVALUACIÓN FLEXIBLE DE FRASE
             rec.onresult = (event) => {
                 const fraseEscuchada = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-                log("Escuchado: " + fraseEscuchada);
+                log("Oído: '" + fraseEscuchada + "'");
 
                 if (fraseEscuchada.includes("jarvis")) {
-                    let ordenLimpia = fraseEscuchada.replace("oye jarvis", "").replace("jarvis", "").trim();
-                    let encontrado = false;
+                    let comandoEncontrado = false;
 
+                    // Buscar coincidencias directas en las claves del diccionario
                     for (let clave in MEMORIA_JARVIS) {
-                        if (ordenLimpia.includes(clave)) {
+                        if (fraseEscuchada.includes(clave)) {
                             hablar(MEMORIA_JARVIS[clave].resp);
                             enviarComandoRobot(MEMORIA_JARVIS[clave].cmd);
-                            encontrado = true;
+                            comandoEncontrado = true;
                             break;
                         }
                     }
 
-                    if (!encontrado) {
-                        hablar("No tengo esa pregunta o instrucción guardada.");
+                    // Respuesta cuando solo se pronuncia "Jarvis" o una frase no indexada
+                    if (!comandoEncontrado) {
+                        let textoSinJarvis = fraseEscuchada.replace("oye jarvis", "").replace("jarvis", "").trim();
+                        
+                        if (textoSinJarvis === "") {
+                            hablar("¿Sí? Estoy escuchando tus órdenes.");
+                        } else {
+                            hablar("No tengo esa pregunta o instrucción guardada en mi código.");
+                        }
                     }
                 }
             };
 
             forzarEncendidoMicrofono();
             
-            // RELOJ GUARDIÁN: Revisa cada 1 segundo que el micrófono no se haya dormido
+            // RELOJ GUARDIÁN DE RESPALDO (Revisa la salud del micrófono cada 1 segundo)
             setInterval(() => {
                 if (microfonoForzado && !jarvisHablando) {
                     forzarEncendidoMicrofono();
@@ -241,18 +263,20 @@
             }, 1000);
         }
 
+        // CONEXIÓN BLUETOOTH CON LA PLACA MEGAPII / HC-05
         async function conectarBluetooth() {
             try {
-                log("Buscando Bluetooth...");
+                log("Buscando módulos Bluetooth...");
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
                     optionalServices: ['00001101-0000-1000-8000-00805f9b34fb']
                 });
+                log("Conectando a GATT Server...");
                 await device.gatt.connect();
-                log("Conectado a " + device.name);
-                hablar("Bluetooth conectado.");
+                log("¡Conectado a " + device.name + "!");
+                hablar("Bluetooth conectado exitosamente.");
             } catch (error) {
-                log("Error BT: " + error);
+                log("Error al conectar BT: " + error);
             }
         }
 
